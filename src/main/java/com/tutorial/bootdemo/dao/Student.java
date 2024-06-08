@@ -1,11 +1,18 @@
 package com.tutorial.bootdemo.dao;
 
+import com.tutorial.bootdemo.converter.GenderConverter;
+import com.tutorial.bootdemo.enums.Gender;
 import jakarta.persistence.*;
+import lombok.*;
 
 import static jakarta.persistence.GenerationType.IDENTITY;
 
 @Entity
 @Table(name="student")
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@Data
 public class Student {
 
     @Id
@@ -22,35 +29,12 @@ public class Student {
     @Column(name="age")
     private int age;
 
-    public long getId() {
-        return id;
-    }
+    @Column(name="gender")
+    @Convert(converter=GenderConverter.class)
+    private Gender gender;
 
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
+    public Student(String name, String email) {
         this.name = name;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
         this.email = email;
-    }
-
-    public int getAge() {
-        return age;
-    }
-
-    public void setAge(int age) {
-        this.age = age;
     }
 }

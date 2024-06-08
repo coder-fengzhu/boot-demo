@@ -8,6 +8,8 @@ import com.tutorial.bootdemo.service.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 public class StudentController {
 
@@ -18,6 +20,12 @@ public class StudentController {
     public Response<StudentDTO> getStudentById(@PathVariable long id) {
         return Response.newSuccess(studentService.getStudentById(id));
     }
+
+    @GetMapping("/student")
+    public Response<List<StudentDTO>> getStudentByAge(@RequestParam int maxAge, @RequestParam int minAge) {
+        return Response.newSuccess(studentService.getStudentsByAges(maxAge, minAge));
+    }
+
 
     @PostMapping("/student")
     public Response<Long> addNewStudent(@RequestBody StudentDTO studentDTO) {

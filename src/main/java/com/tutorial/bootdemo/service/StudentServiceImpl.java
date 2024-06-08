@@ -10,7 +10,12 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class StudentServiceImpl implements StudentService {
@@ -55,6 +60,17 @@ public class StudentServiceImpl implements StudentService {
         Student student = studentRepository.save(studentInDB);
         return StudentConverter.convertStudent(student);
     }
+
+    @Override
+    public List<StudentDTO> getStudentsByAges(int maxAge, int minAge) {
+        List<Student> studentList = studentRepository.findByAgeBetween(minAge, maxAge);
+        if (CollectionUtils.isEmpty(studentList)) {
+            return List.of();
+        }
+
+        return studentList.stream().map(StudentConverter::convertStudent).collect(Collectors.toList());
+    }
+
 
 
 }
