@@ -1,7 +1,5 @@
 package com.tutorial.bootdemo.dao;
 
-import com.tutorial.bootdemo.converter.GenderConverter;
-import com.tutorial.bootdemo.enums.Gender;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -28,10 +26,6 @@ public class Student {
 
     @Column(name="age")
     private int age;
-
-    @Column(name="gender")
-    @Convert(converter=GenderConverter.class)
-    private Gender gender;
 
     public Student(String name, String email) {
         this.name = name;

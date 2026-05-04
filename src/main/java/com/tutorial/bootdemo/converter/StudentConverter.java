@@ -10,7 +10,6 @@ public class StudentConverter {
         studentDTO.setId(student.getId());
         studentDTO.setName(student.getName());
         studentDTO.setEmail(student.getEmail());
-        studentDTO.setGender(student.getGender());
         return studentDTO;
     }
 
