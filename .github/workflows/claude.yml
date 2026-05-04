@@ -1,21 +1,22 @@
 name: Claude Code Review
 on:
   pull_request:
-    types: [opened, synchronize] # 触发时机：PR 打开或同步代码
+    types: [opened, synchronize]
+
+permissions:
+  contents: read
+  pull-requests: write
+  id-token: write   # <-- 必须添加
+
 jobs:
   review:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pull-requests: write
     steps:
       - uses: actions/checkout@v4
       - uses: anthropics/claude-code-action@v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           prompt: |
-            请审查这个 PR 的代码变更。重点关注：
-            - 代码正确性与潜在 Bug
-            - 性能问题
-            - 代码风格一致性
-            - 安全隐患
+            请以友善且专业的语气，审查本 PR 的代码变更。
+        env:
+          ANTHROPIC_BASE_URL: "https://api.deepseek.com/anthropic"
