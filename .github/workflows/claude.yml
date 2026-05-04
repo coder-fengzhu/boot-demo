@@ -1,69 +1,21 @@
-name: Claude Code Assistant
-
-# 定义触发事件：PR 事件 + 评论事件
+name: Auto PR Review
 on:
   pull_request:
-    types: [opened, synchronize]        # 自动审核：PR 新建或推送新代码
-  issue_comment:
-    types: [created]                    # 按需触发：Issue 或 PR 中的新评论
-  pull_request_review_comment:
-    types: [created]                    # 按需触发：PR 代码行评论
-
-# 全局权限设置（所有 job 共享）
+    types: [opened, synchronize]
 permissions:
-  contents: read        # 检出代码需要
-  pull-requests: write  # 发表评论/审核需要
-  issues: write         # 回复 Issue 评论需要
-  id-token: write       # GitHub App OIDC 认证必须
-
-# 环境变量：指向 DeepSeek V4 兼容端点
+  pull-requests: write
+  contents: read
+  id-token: write
 env:
   ANTHROPIC_BASE_URL: "https://api.deepseek.com/anthropic"
   ANTHROPIC_AUTH_TOKEN: ${{ secrets.ANTHROPIC_API_KEY }}
-  ANTHROPIC_MODEL: "deepseek-v4-pro"
-
+  ANTHROPIC_MODEL: "deepseek-chat"
 jobs:
-  # ------------------- Job 1: 自动 PR 代码审查 -------------------
-  code-review:
-    name: Auto PR Review
+  review:
     runs-on: ubuntu-latest
-    # 只在 PR 事件中运行，避免评论事件误触发
-    if: github.event_name == 'pull_request'
     steps:
       - uses: actions/checkout@v4
       - uses: anthropics/claude-code-action@v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          prompt: |
-            你是一位资深的代码审查专家。请审查这个 PR 的代码变更，重点关注：
-            - 潜在的逻辑错误或边界条件缺陷
-            - 性能问题（例如不必要的循环、内存泄漏风险）
-            - 代码风格与项目一致性（使用 2 空格缩进、单引号、尾逗号）
-            - 安全隐患（SQL 注入、XSS、敏感信息泄露）
-            请用友善的语气给出具体建议，必要时提供代码示例。
-
-  # ------------------- Job 2: 响应 @claude 评论 -------------------
-  on-demand:
-    name: Respond to @claude
-    runs-on: ubuntu-latest
-    # 只在评论事件中触发，且评论内容包含 @claude
-    if: |
-      (github.event_name == 'issue_comment' || github.event_name == 'pull_request_review_comment') &&
-      contains(github.event.comment.body, '@claude')
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0   # 获取完整历史，以便 Claude 能分析上下文
-      - uses: anthropics/claude-code-action@v1
-        with:
-          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          # 将用户评论的内容作为 prompt 传递给 Claude
-          prompt: |
-            用户在你的 GitHub Issue/PR 中提到了 @claude，并给出了以下指令：
-
-            --- 用户评论 ---
-            ${{ github.event.comment.body }}
-            ---
-
-            请根据用户的要求执行任务。如果指令含糊不清，请请求澄清。
-            你可以读取仓库文件、运行命令或生成代码。完成后再回复一条评论。
+          prompt: "你是一位资深的代码审查专家...(此处填写审查指令)"
