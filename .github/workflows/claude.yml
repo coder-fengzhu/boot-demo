@@ -1,21 +1,41 @@
 name: Auto PR Review
 on:
   pull_request:
+    # 监听 PR 打开和代码推送，覆盖首次和更新场景
     types: [opened, synchronize]
+
+# 最小化但必需的权限设置
 permissions:
-  pull-requests: write
-  contents: read
-  id-token: write
+  contents: read        # 读取代码
+  pull-requests: write  # 发布评论和提交审查结论
+  id-token: write       # 若使用 OIDC 认证，此权限必须
+
+# 适配 DeepSeek API 的环境变量
 env:
   ANTHROPIC_BASE_URL: "https://api.deepseek.com/anthropic"
   ANTHROPIC_AUTH_TOKEN: ${{ secrets.ANTHROPIC_API_KEY }}
+  # DeepSeek V4 模型，用 deepseek-chat 或自己有的模型标识
   ANTHROPIC_MODEL: "deepseek-chat"
+
 jobs:
   review:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: anthropics/claude-code-action@v1
+        # 使用 --depth 1 获取单次提交即可满足大多数审查场景
+        with:
+          fetch-depth: 1
+      - name: Run Claude Code Review
+        uses: anthropics/claude-code-action@v1
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          prompt: "你是一位资深的代码审查专家...(此处填写审查指令)"
+          prompt: |
+            请以资深代码审查专家的身份，全面审查此 PR 的代码变更。
+            请特别关注以下几个方面：
+            - **逻辑错误**: 是否存在潜在的逻辑错误或未处理的边界条件？
+            - **性能问题**: 是否存在不必要的循环、内存泄漏风险或其他性能问题？
+            - **代码风格**: 代码是否符合项目规范（例如，2空格缩进，使用单引号等）？
+            - **安全隐患**: 是否存在 SQL 注入、XSS 或敏感信息泄露等风险？
+
+            对于发现的问题，请明确指出所在的文件和行号，并给出修改建议。
+            如果一切良好，请回复“代码审查通过，未发现明显问题。”
