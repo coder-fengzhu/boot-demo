@@ -16,6 +16,7 @@ public class StudentController {
     @Autowired
     private StudentService studentService;
 
+    
     @GetMapping("/student/{id}")
     public Response<StudentDTO> getStudentById(@PathVariable long id) {
         return Response.newSuccess(studentService.getStudentById(id));

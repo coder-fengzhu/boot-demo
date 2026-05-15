@@ -1,6 +1,5 @@
 package com.tutorial.bootdemo.dto;
 
-import com.tutorial.bootdemo.enums.Gender;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,19 +17,9 @@ public class StudentDTO {
 
     private String email;
 
-    private Gender gender;
-
     private int minAge;
 
     private int maxAge;
-
-    public Gender getGender() {
-        return gender;
-    }
-
-    public void setGender(Gender gender) {
-        this.gender = gender;
-    }
 
     public long getId() {
         return id;
